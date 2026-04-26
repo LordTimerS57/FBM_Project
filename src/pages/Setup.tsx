@@ -1,20 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, FastForward, ListOrdered, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { Stepper } from "@/components/Stepper";
 import { EquationBuilder } from "@/components/EquationBuilder";
 import { CanonicalPreview } from "@/components/CanonicalPreview";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/lib/problem-store";
-import type { ObjectiveType, ResolutionMode } from "@/lib/simplex-types";
+import type { ObjectiveType } from "@/lib/simplex-types";
 
 const Setup = () => {
   const navigate = useNavigate();
-  const { objectiveType, setObjectiveType, mode, setMode } = useProblemStore();
+  const { objectiveType, setObjectiveType } = useProblemStore();
 
   const handleSolve = () => {
-    if (mode === "step") navigate("/solve/steps");
-    else navigate("/solve/result");
+    navigate("/solve/result");
   };
 
   return (
@@ -28,7 +27,6 @@ const Setup = () => {
             steps={[
               { label: "Type", description: "Max ou Min" },
               { label: "Équations", description: "Objectif & contraintes" },
-              { label: "Résolution", description: "Étapes ou résultat" },
             ]}
           />
         </div>
@@ -101,57 +99,6 @@ const Setup = () => {
 
           {/* Aperçu canonique */}
           <CanonicalPreview />
-
-          {/* Mode de résolution */}
-          <section className="space-y-4">
-            <header>
-              <h2 className="text-lg font-semibold">Mode de résolution</h2>
-              <p className="text-sm text-muted-foreground">
-                Choisissez d'afficher chaque itération du tableau ou seulement la solution
-                finale.
-              </p>
-            </header>
-
-            <div className="grid sm:grid-cols-2 gap-3">
-              {(
-                [
-                  {
-                    value: "step",
-                    title: "Pas à pas",
-                    desc: "Naviguez itération par itération avec mise en évidence du pivot.",
-                    icon: ListOrdered,
-                  },
-                  {
-                    value: "direct",
-                    title: "Résultat direct",
-                    desc: "Obtenez immédiatement la solution optimale et la valeur de Z.",
-                    icon: FastForward,
-                  },
-                ] as { value: ResolutionMode; title: string; desc: string; icon: typeof ListOrdered }[]
-              ).map(({ value, title, desc, icon: Icon }) => {
-                const active = mode === value;
-                return (
-                  <button
-                    key={value}
-                    onClick={() => setMode(value)}
-                    className={`text-left rounded-xl border p-5 transition-all ${
-                      active
-                        ? "border-primary bg-primary/10 shadow-glow"
-                        : "border-border bg-surface hover:border-border-strong"
-                    }`}
-                  >
-                    <Icon
-                      className={`h-5 w-5 mb-3 ${
-                        active ? "text-primary" : "text-muted-foreground"
-                      }`}
-                    />
-                    <div className="font-semibold mb-1">{title}</div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-4 border-t border-border">

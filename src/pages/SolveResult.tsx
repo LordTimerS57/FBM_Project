@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, ListOrdered, RefreshCw, Trophy } from "lucide-react";
+import { ArrowLeft, CheckCircle2, RefreshCw, Trophy } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,10 @@ const SolveResult = () => {
       <main className="flex-1 container py-10 max-w-5xl">
         <div className="mb-10">
           <Stepper
-            current={2}
+            current={1}
             steps={[
               { label: "Type", description: "Max ou Min" },
               { label: "Équations", description: "Objectif & contraintes" },
-              { label: "Résolution", description: "Solution optimale" },
             ]}
           />
         </div>
@@ -143,26 +142,16 @@ const SolveResult = () => {
             </Link>
           </Button>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/solve/steps")}
-              className="border-border-strong"
-            >
-              <ListOrdered className="h-4 w-4 mr-2" />
-              Voir les étapes
-            </Button>
-            <Button
-              onClick={() => {
-                reset();
-                navigate("/");
-              }}
-              className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Nouveau problème
-            </Button>
-          </div>
+          <Button
+            onClick={() => {
+              reset();
+              navigate("/");
+            }}
+            className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Nouveau problème
+          </Button>
         </nav>
       </main>
     </div>

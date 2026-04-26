@@ -1,2 +1,3 @@
-# FBM_Project
-Managing production through Linear programmation
+# Welcome to your Lovable project
+
+TODO: Document your project here

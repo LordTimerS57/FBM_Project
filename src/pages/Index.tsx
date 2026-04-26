@@ -31,8 +31,7 @@ const Index = () => {
 
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Saisissez votre fonction objectif et vos contraintes sous forme d'équations.
-                Obtenez la solution optimale, ou explorez la résolution{" "}
-                <span className="text-foreground font-medium">étape par étape</span>.
+                Obtenez la solution optimale instantanément.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
@@ -146,8 +145,8 @@ const Index = () => {
               },
               {
                 icon: BarChart3,
-                title: "Pas à pas ou direct",
-                desc: "Choisissez d'afficher chaque itération ou seulement la solution optimale.",
+                title: "Résolution instantanée",
+                desc: "Obtenez immédiatement la solution optimale et la valeur de Z.",
               },
               {
                 icon: Sparkles,

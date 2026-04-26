@@ -1,5 +1,4 @@
 export type ObjectiveType = "max" | "min";
-export type ResolutionMode = "step" | "direct";
 export type ConstraintOp = "<=" | ">=" | "=";
 
 export interface ProblemConstraint {
@@ -19,7 +18,6 @@ export interface SimplexProblem {
   /** Coefficients de la fonction objectif (longueur = numVariables). */
   objectiveCoefficients: string[];
   constraints: ProblemConstraint[];
-  mode: ResolutionMode;
 }
 
 /** Étape (mock) — la vraie viendra de l'API back. Sert au design du tableau. */

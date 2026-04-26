@@ -2,13 +2,11 @@ import { create } from "zustand";
 import type {
   ObjectiveType,
   ProblemConstraint,
-  ResolutionMode,
   SimplexProblem,
 } from "./simplex-types";
 
 interface ProblemStore extends SimplexProblem {
   setObjectiveType: (t: ObjectiveType) => void;
-  setMode: (m: ResolutionMode) => void;
   setNumVariables: (n: number) => void;
   setVariableName: (index: number, name: string) => void;
   setObjectiveCoefficient: (index: number, value: string) => void;
@@ -38,7 +36,6 @@ const initial: SimplexProblem = {
   variableNames: Array(DEFAULT_VARS).fill(""),
   objectiveCoefficients: Array(DEFAULT_VARS).fill(""),
   constraints: [blankConstraint(DEFAULT_VARS), blankConstraint(DEFAULT_VARS)],
-  mode: "step",
 };
 
 const resizeArr = (arr: string[], n: number) => {
@@ -51,7 +48,6 @@ export const useProblemStore = create<ProblemStore>((set, get) => ({
   ...initial,
 
   setObjectiveType: (t) => set({ objectiveType: t }),
-  setMode: (m) => set({ mode: m }),
 
   setNumVariables: (n) => {
     const safe = Math.max(1, Math.min(10, Math.floor(n) || 1));

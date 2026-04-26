@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Setup from "./pages/Setup.tsx";
-import SolveSteps from "./pages/SolveSteps.tsx";
 import SolveResult from "./pages/SolveResult.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -20,7 +19,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/setup" element={<Setup />} />
-          <Route path="/solve/steps" element={<SolveSteps />} />
           <Route path="/solve/result" element={<SolveResult />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

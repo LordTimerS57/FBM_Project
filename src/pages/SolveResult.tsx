@@ -1,28 +1,37 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, RefreshCw, Trophy } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
-import { mockSteps } from "@/lib/mock-steps";
 import { useProblemStore } from "@/lib/problem-store";
+import type { SimplexResponse } from "@/lib/api-client";
 
 const SolveResult = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { objectiveType, numVariables, reset, getVarLabel } = useProblemStore();
-  const finalStep = mockSteps[mockSteps.length - 1];
+  
+  // Récupérer le résultat de l'API depuis l'état de navigation
+  const apiResult = location.state?.result as SimplexResponse | undefined;
+  
+  // Utiliser les données de l'API ou des valeurs par défaut si pas de résultat
+  const result = apiResult || {
+    variables: {},
+    z: 0,
+    success: false,
+    message: "Aucun résultat disponible"
+  };
 
-  // mock — à remplacer par la réponse de l'API
-  // On mappe sur les vraies variables nommées (ou x_i) — valeurs factices.
-  const mockValues = [6, 6, 0, 4, 2, 0, 0, 0, 0, 0];
   const decisionVars = Array.from({ length: numVariables }, (_, i) => ({
     name: getVarLabel(i),
     raw: `x${i + 1}`,
-    value: mockValues[i] ?? 0,
+    value: result.variables[`x${i + 1}`] ?? 0,
   }));
 
+  // Calculer les variables d'écart (simplifié - dans une vraie implémentation, elles viendraient de l'API)
   const slackVars = [
     { name: "s₁", value: 0 },
-    { name: "s₂", value: 12 },
+    { name: "s₂", value: 0 },
     { name: "s₃", value: 0 },
   ];
 
@@ -35,7 +44,7 @@ const SolveResult = () => {
           <Stepper
             current={1}
             steps={[
-              { label: "Type", description: "Max ou Min" },
+              { label: "Objectif", description: "Profits ou Coûts" },
               { label: "Équations", description: "Objectif & contraintes" },
             ]}
           />
@@ -54,21 +63,23 @@ const SolveResult = () => {
 
             <div>
               <div className="text-xs font-mono font-semibold text-primary uppercase tracking-wider mb-2">
-                {objectiveType === "max" ? "Maximum de Z" : "Minimum de Z"}
+                {objectiveType === "max" ? "Profit optimal" : "Pertes minimales"}
               </div>
               <div className="flex items-baseline gap-3">
                 <span className="text-6xl md:text-7xl font-bold text-gradient num">
-                  {finalStep.zValue}
+                  {result.z.toFixed(2)}
                 </span>
                 <span className="text-2xl text-muted-foreground font-mono">
-                  unités
+                  {objectiveType === "max" ? "unités de profit" : "unités de coût"}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Trophy className="h-4 w-4 text-primary" />
-              Atteint en {mockSteps.length - 1} itération{mockSteps.length - 1 > 1 ? "s" : ""}
+              {objectiveType === "max" 
+                ? "Solution optimale : maximisation des profits sous contraintes"
+                : "Solution optimale : minimisation des coûts sous contraintes"}
             </div>
           </div>
         </section>

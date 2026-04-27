@@ -1,19 +1,130 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowLeft, ArrowRight, TrendingDown, TrendingUp, Loader2, AlertTriangle } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { Stepper } from "@/components/Stepper";
 import { EquationBuilder } from "@/components/EquationBuilder";
 import { CanonicalPreview } from "@/components/CanonicalPreview";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/lib/problem-store";
+import { useApiStatusStore } from "@/lib/api-status-store";
+import { simplexAPI, type SimplexRequest } from "@/lib/api-client";
+import { SimplexRequest as SimplexRequestModel } from "@/lib/api-generated";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { ObjectiveType } from "@/lib/simplex-types";
 
 const Setup = () => {
   const navigate = useNavigate();
-  const { objectiveType, setObjectiveType } = useProblemStore();
+  const { objectiveType, setObjectiveType, numVariables, objectiveCoefficients, constraints, getVarLabel } = useProblemStore();
+  const apiStatus = useApiStatusStore();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSolve = () => {
-    navigate("/solve/result");
+  const validateInputs = (): boolean => {
+    // Vérifier que tous les coefficients de l'objectif sont remplis
+    for (let i = 0; i < numVariables; i++) {
+      const coef = objectiveCoefficients[i]?.trim();
+      if (coef === "" || coef === undefined) {
+        toast.error(`Veuillez remplir le coefficient de la variable ${getVarLabel(i)}`);
+        return false;
+      }
+      const num = parseFloat(coef);
+      if (isNaN(num)) {
+        toast.error(`Le coefficient de ${getVarLabel(i)} doit être un nombre valide`);
+        return false;
+      }
+    }
+
+    // Vérifier que toutes les contraintes sont remplies
+    for (let i = 0; i < constraints.length; i++) {
+      const constraint = constraints[i];
+      
+      // Vérifier les coefficients
+      for (let j = 0; j < numVariables; j++) {
+        const coef = constraint.coefficients[j]?.trim();
+        if (coef === "" || coef === undefined) {
+          toast.error(`Contrainte ${i + 1}: Veuillez remplir le coefficient de ${getVarLabel(j)}`);
+          return false;
+        }
+        const num = parseFloat(coef);
+        if (isNaN(num)) {
+          toast.error(`Contrainte ${i + 1}: Le coefficient de ${getVarLabel(j)} doit être un nombre valide`);
+          return false;
+        }
+      }
+
+      // Vérifier le RHS
+      const rhs = constraint.rhs?.trim();
+      if (rhs === "" || rhs === undefined) {
+        toast.error(`Contrainte ${i + 1}: Veuillez remplir la valeur du RHS`);
+        return false;
+      }
+      const rhsNum = parseFloat(rhs);
+      if (isNaN(rhsNum) || rhsNum <= 0) {
+        toast.error(`Contrainte ${i + 1}: Le RHS doit être un nombre positif`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleSolve = async () => {
+    if (!validateInputs()) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Vérifier l'état de l'API avant de résoudre
+      if (apiStatus.status !== "connected") {
+        toast.error(
+          "Service temporairement indisponible. Veuillez réessayer dans quelques instants.",
+          {
+            icon: <AlertTriangle className="h-4 w-4" />,
+            duration: 5000,
+          }
+        );
+        return;
+      }
+
+      // Préparer la requête pour l'API en contournant les types générés
+      const request = {
+        objective_type: objectiveType,
+        num_variables: numVariables,
+        objective_coefficients: objectiveCoefficients.map(c => parseFloat(c.trim())),
+        constraints: constraints.map(c => ({
+          coeffs: c.coefficients.reduce((acc, coef, idx) => {
+            acc[`x${idx + 1}`] = parseFloat(coef.trim());
+            return acc;
+          }, {} as Record<string, number>),
+          type: c.op,
+          b: parseFloat(c.rhs.trim())
+        }))
+      } as SimplexRequest;
+
+      const response = await simplexAPI.solve(request);
+      
+      if (response.success) {
+        // Stocker le résultat dans le store
+        navigate("/solve/result", { state: { result: response } });
+      } else {
+        toast.error(response.message || "Erreur lors de la résolution");
+      }
+    } catch (error) {
+      console.error("Error solving:", error);
+      const errorMessage = error instanceof Error ? error.message : "Erreur lors de la résolution";
+      
+      if (errorMessage.includes("API") || errorMessage.includes("disponible")) {
+        toast.error(errorMessage, {
+          icon: <AlertTriangle className="h-4 w-4" />,
+          duration: 5000,
+        });
+      } else {
+        toast.error(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -21,11 +132,35 @@ const Setup = () => {
       <AppHeader />
 
       <main className="flex-1 container py-10 max-w-5xl">
+        {/* Alert API */}
+        {apiStatus.status === "disconnected" && (
+          <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-destructive">
+                Service temporairement indisponible
+              </h3>
+              <p className="text-sm text-destructive/80 mt-1">
+                Le service de calcul est momentanément inaccessible. Veuillez réessayer dans quelques instants.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Nos équipes sont informées du problème.
+              </p>
+            </div>
+            <button
+              onClick={() => apiStatus.checkHealth()}
+              className="shrink-0 px-3 py-1.5 text-sm font-medium bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
+
         <div className="mb-10">
           <Stepper
             current={1}
             steps={[
-              { label: "Type", description: "Max ou Min" },
+              { label: "Objectif", description: "Profits ou Coûts" },
               { label: "Équations", description: "Objectif & contraintes" },
             ]}
           />
@@ -48,14 +183,14 @@ const Setup = () => {
                 [
                   {
                     value: "max",
-                    label: "Maximisation",
-                    sub: "Max Z",
+                    label: "Maximiser les profits",
+                    sub: "Max Z - Optimiser revenus",
                     icon: TrendingUp,
                   },
                   {
                     value: "min",
-                    label: "Minimisation",
-                    sub: "Min Z",
+                    label: "Minimiser les pertes",
+                    sub: "Min Z - Réduire coûts",
                     icon: TrendingDown,
                   },
                 ] as { value: ObjectiveType; label: string; sub: string; icon: typeof TrendingUp }[]
@@ -113,10 +248,20 @@ const Setup = () => {
             <Button
               size="lg"
               onClick={handleSolve}
+              disabled={isLoading}
               className="bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-elegant h-12 px-6"
             >
-              Résoudre
-              <ArrowRight className="ml-1 h-4 w-4" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Résolution en cours...
+                </>
+              ) : (
+                <>
+                  Résoudre
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </>
+              )}
             </Button>
           </div>
         </div>

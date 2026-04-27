@@ -87,10 +87,9 @@ const Index = () => {
                   <div className="text-xs font-mono font-semibold text-primary uppercase tracking-wider mb-1">
                     Max Z
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Maximisation</h3>
+                  <h3 className="text-2xl font-bold mb-2">Maximiser les profits</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Maximisez un profit, un revenu, un rendement ou la valeur d'un
-                    portefeuille sous contraintes de ressources.
+                    Optimisez vos revenus, profits ou rendements en maximisant la fonction objectif tout en respectant vos contraintes budgétaires et de ressources.
                   </p>
                 </div>
 
@@ -118,10 +117,9 @@ const Index = () => {
                   <div className="text-xs font-mono font-semibold text-accent uppercase tracking-wider mb-1">
                     Min Z
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Minimisation</h3>
+                  <h3 className="text-2xl font-bold mb-2">Minimiser les pertes</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Minimisez un coût, une dépense ou un risque tout en respectant des
-                    seuils minimaux de couverture ou d'allocation.
+                    Réduisez vos coûts, dépenses ou pertes en minimisant la fonction objectif tout en garantissant le respect de vos contraintes opérationnelles minimales.
                   </p>
                 </div>
 

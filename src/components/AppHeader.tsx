@@ -1,9 +1,52 @@
 import { Sigma } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useApiStatusStore } from "@/lib/api-status-store";
+import { useEffect } from "react";
 
 export function AppHeader() {
   const { pathname } = useLocation();
+  const { status, checkHealth } = useApiStatusStore();
+
+  useEffect(() => {
+    // Vérifier la connexion au chargement
+    checkHealth();
+    
+    // Vérifier la connexion toutes les 30 secondes
+    const interval = setInterval(checkHealth, 30000);
+    
+    return () => clearInterval(interval);
+  }, [checkHealth]);
+
+  const getStatusColor = () => {
+    switch (status) {
+      case "connected":
+        return "bg-success";
+      case "disconnected":
+        return "bg-destructive";
+      case "error":
+        return "bg-warning";
+      case "loading":
+        return "bg-muted";
+      default:
+        return "bg-muted";
+    }
+  };
+
+  const getStatusLabel = () => {
+    switch (status) {
+      case "connected":
+        return "API connectée";
+      case "disconnected":
+        return "API déconnectée";
+      case "error":
+        return "Erreur API";
+      case "loading":
+        return "Vérification...";
+      default:
+        return "API";
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -48,9 +91,15 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border-strong bg-surface px-3 py-1 text-[11px] font-medium text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse-glow" />
-            API connectée
+          <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full border ${
+            status === "connected" ? "border-border-strong" : "border-destructive/50"
+          } bg-surface px-3 py-1 text-[11px] font-medium ${
+            status === "connected" ? "text-muted-foreground" : "text-destructive"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${getStatusColor()} ${
+              status === "connected" ? "animate-pulse-glow" : ""
+            }`} />
+            {getStatusLabel()}
           </span>
           <ThemeToggle />
         </div>

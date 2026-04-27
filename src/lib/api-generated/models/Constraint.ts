@@ -24,9 +24,9 @@ export namespace Constraint {
      * Type of constraint
      */
     export enum type {
-        _ = '<=',
-        _ = '>=',
-        _ = '=',
+        LE = '<=',
+        GE = '>=',
+        EQ = '=',
     }
 }
 

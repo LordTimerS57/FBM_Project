@@ -5,6 +5,7 @@ import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/lib/problem-store";
 import type { SimplexResponse } from "@/lib/api-client";
+import { useEffect } from "react";
 
 const SolveResult = () => {
   const navigate = useNavigate();
@@ -13,6 +14,13 @@ const SolveResult = () => {
   
   // Récupérer le résultat de l'API depuis l'état de navigation
   const apiResult = location.state?.result as SimplexResponse | undefined;
+  
+  // Rediriger si aucun résultat n'est disponible (accès direct sans saisie)
+  useEffect(() => {
+    if (!apiResult) {
+      navigate("/setup", { replace: true });
+    }
+  }, [apiResult, navigate]);
   
   // Utiliser les données de l'API ou des valeurs par défaut si pas de résultat
   const result = apiResult || {

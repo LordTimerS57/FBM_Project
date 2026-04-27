@@ -70,7 +70,6 @@ export function AppHeader() {
           {[
             { to: "/", label: "Accueil" },
             { to: "/setup", label: "Saisie" },
-            { to: "/solve", label: "Résolution" },
           ].map((item) => {
             const active =
               item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);

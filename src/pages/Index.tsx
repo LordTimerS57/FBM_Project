@@ -1,17 +1,29 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, TrendingUp, TrendingDown, Sparkles, BarChart3, Layers } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
+import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/lib/problem-store";
 
 const Index = () => {
-  const setObjectiveType = useProblemStore((s) => s.setObjectiveType);
+  const { setObjectiveType, setCurrentStep } = useProblemStore();
 
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
 
       <main className="flex-1">
+        <div className="container py-10 max-w-5xl">
+          <Stepper
+            current={0}
+            steps={[
+              { label: "Objectif", description: "Profits ou Coûts" },
+              { label: "Équations", description: "Objectif & contraintes" },
+              { label: "Résultats", description: "Solution optimale" },
+            ]}
+          />
+        </div>
+
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 grid-bg opacity-40" />
@@ -73,7 +85,10 @@ const Index = () => {
             {/* Maximisation */}
             <Link
               to="/setup"
-              onClick={() => setObjectiveType("max")}
+              onClick={() => {
+                setObjectiveType("max");
+                setCurrentStep(1);
+              }}
               className="group relative overflow-hidden rounded-2xl glass-panel p-8 hover:border-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-elegant"
             >
               <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-primary/20 blur-3xl group-hover:bg-primary/30 transition-colors" />
@@ -103,7 +118,10 @@ const Index = () => {
             {/* Minimisation */}
             <Link
               to="/setup"
-              onClick={() => setObjectiveType("min")}
+              onClick={() => {
+                setObjectiveType("min");
+                setCurrentStep(1);
+              }}
               className="group relative overflow-hidden rounded-2xl glass-panel p-8 hover:border-accent transition-all duration-300 hover:-translate-y-1 hover:shadow-card"
             >
               <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-accent/20 blur-3xl group-hover:bg-accent/30 transition-colors" />

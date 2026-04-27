@@ -15,7 +15,7 @@ import type { ObjectiveType } from "@/lib/simplex-types";
 
 const Setup = () => {
   const navigate = useNavigate();
-  const { objectiveType, setObjectiveType, numVariables, objectiveCoefficients, constraints, getVarLabel } = useProblemStore();
+  const { objectiveType, setObjectiveType, numVariables, objectiveCoefficients, constraints, getVarLabel, setCurrentStep } = useProblemStore();
   const apiStatus = useApiStatusStore();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -105,7 +105,8 @@ const Setup = () => {
       const response = await simplexAPI.solve(request);
       
       if (response.success) {
-        // Stocker le résultat dans le store
+        // Passer à l'étape 3 (résultats) et naviguer
+        setCurrentStep(2);
         navigate("/solve/result", { state: { result: response } });
       } else {
         toast.error(response.message || "Erreur lors de la résolution");
@@ -162,6 +163,7 @@ const Setup = () => {
             steps={[
               { label: "Objectif", description: "Profits ou Coûts" },
               { label: "Équations", description: "Objectif & contraintes" },
+              { label: "Résultats", description: "Solution optimale" },
             ]}
           />
         </div>

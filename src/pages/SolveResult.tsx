@@ -10,7 +10,7 @@ import { useEffect } from "react";
 const SolveResult = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { objectiveType, numVariables, reset, getVarLabel } = useProblemStore();
+  const { objectiveType, numVariables, reset, getVarLabel, setCurrentStep } = useProblemStore();
   
   // Récupérer le résultat de l'API depuis l'état de navigation
   const apiResult = location.state?.result as SimplexResponse | undefined;
@@ -19,8 +19,11 @@ const SolveResult = () => {
   useEffect(() => {
     if (!apiResult) {
       navigate("/setup", { replace: true });
+      return;
     }
-  }, [apiResult, navigate]);
+    // Passer à l'étape 3 (résultats) quand on arrive sur cette page
+    setCurrentStep(2);
+  }, [apiResult, navigate, setCurrentStep]);
   
   // Utiliser les données de l'API ou des valeurs par défaut si pas de résultat
   const result = apiResult || {
@@ -50,10 +53,11 @@ const SolveResult = () => {
       <main className="flex-1 container py-10 max-w-5xl">
         <div className="mb-10">
           <Stepper
-            current={1}
+            current={2}
             steps={[
               { label: "Objectif", description: "Profits ou Coûts" },
               { label: "Équations", description: "Objectif & contraintes" },
+              { label: "Résultats", description: "Solution optimale" },
             ]}
           />
         </div>

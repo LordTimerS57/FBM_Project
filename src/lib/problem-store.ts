@@ -6,6 +6,8 @@ import type {
 } from "./simplex-types";
 
 interface ProblemStore extends SimplexProblem {
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
   setObjectiveType: (t: ObjectiveType) => void;
   setNumVariables: (n: number) => void;
   setVariableName: (index: number, name: string) => void;
@@ -38,6 +40,8 @@ const initial: SimplexProblem = {
   constraints: [blankConstraint(DEFAULT_VARS), blankConstraint(DEFAULT_VARS)],
 };
 
+const initialStep = 0;
+
 const resizeArr = (arr: string[], n: number) => {
   const next = arr.slice(0, n);
   while (next.length < n) next.push("");
@@ -46,6 +50,9 @@ const resizeArr = (arr: string[], n: number) => {
 
 export const useProblemStore = create<ProblemStore>((set, get) => ({
   ...initial,
+  currentStep: initialStep,
+
+  setCurrentStep: (step) => set({ currentStep: step }),
 
   setObjectiveType: (t) => set({ objectiveType: t }),
 
@@ -104,6 +111,7 @@ export const useProblemStore = create<ProblemStore>((set, get) => ({
   reset: () =>
     set({
       ...initial,
+      currentStep: initialStep,
       variableNames: Array(DEFAULT_VARS).fill(""),
       objectiveCoefficients: Array(DEFAULT_VARS).fill(""),
       constraints: [blankConstraint(DEFAULT_VARS), blankConstraint(DEFAULT_VARS)],

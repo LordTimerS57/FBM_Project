@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, TrendingUp, TrendingDown, Sparkles, BarChart3, Layers } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { Stepper } from "@/components/Stepper";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/lib/problem-store";
 
@@ -13,17 +12,6 @@ const Index = () => {
       <AppHeader />
 
       <main className="flex-1">
-        <div className="container py-10 max-w-5xl">
-          <Stepper
-            current={0}
-            steps={[
-              { label: "Objectif", description: "Profits ou Coûts" },
-              { label: "Équations", description: "Objectif & contraintes" },
-              { label: "Résultats", description: "Solution optimale" },
-            ]}
-          />
-        </div>
-
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 grid-bg opacity-40" />
